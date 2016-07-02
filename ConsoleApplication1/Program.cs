@@ -59,6 +59,11 @@ namespace ConsoleApplication1
             }
         }
 
+        private static bool CheckIsStockCSV(string s)
+        {
+            return s.EndsWith(".csv") == true && s.Length <= 10;
+        }
+
         static void Main(string[] args)
         {
             string[] files = Directory.GetFiles(".");
@@ -67,7 +72,7 @@ namespace ConsoleApplication1
 
             foreach (string s in files)
             {
-                if (s.EndsWith(".csv") == true && s.Length <= 10)
+                if (CheckIsStockCSV(s) == true)
                 {
                     TextFieldParser parser = new TextFieldParser(s);
                     parser.TextFieldType = FieldType.Delimited;
@@ -138,6 +143,11 @@ namespace ConsoleApplication1
             long[] filesizes = new long[files.Length];
             for (int i = 0; i < files.Length; i++)
             {
+                if (CheckIsStockCSV(files[i]) == false)
+                {
+                    continue;
+                }
+
                 FileInfo fi = new FileInfo(files[i]);
 
                 for (int j = 0; j < filesizes.Length; j++)
