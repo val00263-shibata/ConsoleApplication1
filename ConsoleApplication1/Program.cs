@@ -110,7 +110,11 @@ namespace ConsoleApplication1
                     double today = GetTrend(records.GetRange(1, records.Count - 1));
                     double yesterday = GetTrend(records.GetRange(0, records.Count - 1));
 
-                    if (today > 0 && yesterday > 0)
+                    double block1 = GetTrend(records.GetRange(00, records.Count - 40));
+                    double block2 = GetTrend(records.GetRange(20, records.Count - 40));
+                    double block3 = GetTrend(records.GetRange(40, records.Count - 40));
+
+                    if (block1 < block2 && block2 < block3)
                     {
                         Score score = new Score();
 
