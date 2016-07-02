@@ -1,0 +1,31 @@
+C:\Documents and Settings\nob\Local Settings\Application Data\Temporary Projects\ConsoleApplication1\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\nob\Local Settings\Application Data\Temporary Projects\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe
+C:\Documents and Settings\nob\Local Settings\Application Data\Temporary Projects\ConsoleApplication1\bin\Debug\ConsoleApplication1.pdb
+C:\Documents and Settings\nob\Local Settings\Application Data\Temporary Projects\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.exe
+C:\Documents and Settings\nob\Local Settings\Application Data\Temporary Projects\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.pdb
+C:\Documents and Settings\nob\my documents\visual studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.exe
+C:\Documents and Settings\nob\my documents\visual studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.pdb
+C:\Documents and Settings\nob\my documents\visual studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe
+C:\Documents and Settings\nob\my documents\visual studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\ConsoleApplication1.pdb
+C:\Documents and Settings\nob\my documents\visual studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\nob\My Documents\Visual Studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\FSharp.Core.dll
+C:\Documents and Settings\nob\My Documents\Visual Studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.dll
+C:\Documents and Settings\nob\My Documents\Visual Studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.FSharp.dll
+C:\Documents and Settings\nob\My Documents\Visual Studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\FSharp.Core.xml
+C:\Documents and Settings\nob\My Documents\Visual Studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.pdb
+C:\Documents and Settings\nob\My Documents\Visual Studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.xml
+C:\Documents and Settings\nob\My Documents\Visual Studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.FSharp.pdb
+C:\Documents and Settings\nob\My Documents\Visual Studio 2010\Projects\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.FSharp.xml
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.exe
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\obj\x86\Debug\ConsoleApplication1.pdb
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\ConsoleApplication1.pdb
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\FSharp.Core.dll
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.dll
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.FSharp.dll
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\FSharp.Core.xml
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.pdb
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.xml
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.FSharp.pdb
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\bin\Debug\MathNet.Numerics.FSharp.xml
+E:\00_MySpace\Document\Finance\ConsoleApplication1\ConsoleApplication1\obj\x86\Debug\ResolveAssemblyReference.cache
