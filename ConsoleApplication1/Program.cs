@@ -46,11 +46,11 @@ namespace ConsoleApplication1
 
             public int CompareTo(object obj)
             {
-                if (((Score)obj).直近傾きの上昇率 == 直近傾きの上昇率)
+                if (((Score)obj).直近日当たりの上昇率 == 直近日当たりの上昇率)
                 {
                     return 0;
                 }
-                return ((Score)obj).直近傾きの上昇率 > 直近傾きの上昇率 ? 1 : -1;
+                return ((Score)obj).直近日当たりの上昇率 > 直近日当たりの上昇率 ? 1 : -1;
             }
 
             public override string ToString()
@@ -114,7 +114,7 @@ namespace ConsoleApplication1
                     double block2 = GetTrend(records.GetRange(20, records.Count - 40));
                     double block3 = GetTrend(records.GetRange(40, records.Count - 40));
 
-                    if (block1 < block2 && block2 < block3)
+                    if (0 < block1 && block1 < block2 && block2 < block3)
                     {
                         Score score = new Score();
 
