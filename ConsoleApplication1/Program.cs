@@ -145,6 +145,8 @@ namespace ConsoleApplication1
         private static void CheckDuplicateFileSize(string[] files)
         {
             long[] filesizes = new long[files.Length];
+            string[] second_records = new string[files.Length];
+
             for (int i = 0; i < files.Length; i++)
             {
                 if (CheckIsStockCSV(files[i]) == false)
@@ -154,15 +156,20 @@ namespace ConsoleApplication1
 
                 FileInfo fi = new FileInfo(files[i]);
 
+                StreamReader sr = fi.OpenText();
+                sr.ReadLine();
+                string second_record = sr.ReadLine();
+
                 for (int j = 0; j < filesizes.Length; j++)
                 {
-                    if (filesizes[j] == fi.Length)
+                    if (filesizes[j] == fi.Length && second_records[j] == second_record)
                     {
                         throw new ApplicationException(files[i]);
                     }
                 }
 
                 filesizes[i] = fi.Length;
+                second_records[i] = second_record;
             }
         }
 
