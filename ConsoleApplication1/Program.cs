@@ -9,14 +9,6 @@ namespace ConsoleApplication1
 {
     class Program
     {
-        /*
-        25日に対して
-        傾きが上がっている直近1年分から日数のカウント
-        latest傾き度
-        max傾き度
-        回帰直線
-        */
-
         struct Record
         {
             public string 日付;
@@ -36,20 +28,29 @@ namespace ConsoleApplication1
             public string _25DVMA;
         }
 
-        struct Score
+        struct Score : IComparable
         {
-            public short code;
-            public short days;
-            public double latest;
-            public double max;
-            public double min;
-            public double sum;
-            public double trend;
+            public string コード;
+            public double 直近日当たりの上昇率;
+            public double 直近傾きの上昇率;
+            public double 注文買値;
+
+            public int CompareTo(object obj)
+            {
+                return ((Score)obj).直近傾きの上昇率 > 直近傾きの上昇率 ? 1 : -1;
+            }
+
+            public override string ToString()
+            {
+                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 注文買値; 
+            }
         }
 
         static void Main(string[] args)
         {
             string[] files = Directory.GetFiles(".");
+            List<Score> scores = new List<Score>();
+
             foreach (string s in files)
             {
                 if (s.EndsWith(".csv") == true)
@@ -90,96 +91,43 @@ namespace ConsoleApplication1
                     double today = GetTrend(records.GetRange(1, records.Count - 1));
                     double yesterday = GetTrend(records.GetRange(0, records.Count - 1));
 
-                    Console.WriteLine(s);
-
-                    Console.WriteLine(today / double.Parse(records[records.Count - 1].終値));
-
-                    //Console.WriteLine(yesterday);
-                    //Console.WriteLine(today);
-                    //Console.WriteLine(records.GetRange(1, records.Count - 1).Count);
-                    //Console.WriteLine(records.GetRange(0, records.Count - 1).Count);
-
-                    //if (today > 0 && yesterday > 0 && today > yesterday)
                     if (today > 0 && yesterday > 0)
                     {
-                        //Console.Write("today / yesterday : ");
-                        Console.WriteLine(today / yesterday);
+                        Score score = new Score();
+
+                        score.コード = s.Substring(2, 4);
+                        score.直近日当たりの上昇率 = today / double.Parse(records[records.Count - 1].終値);
+                        score.直近傾きの上昇率 = today / yesterday;
+                        score.注文買値 = GetPrice(records);
+
+                        scores.Add(score);
                     }
                 }
             }
 
-            Console.Read();
-        }
+            scores.Sort();
 
-        private static double GetRate(List<Record> records, int index)
-        {
-            return double.Parse(records[index]._25DMA) / double.Parse(records[index - 1]._25DMA);
-        }
-
-        private static double GetMax(List<Record> records)
-        {
-            double ret = 0.0;
-
-            for (int i = 1; i < records.Count; i++)
+            TextWriter tw = new StreamWriter(DateTime.Now.Ticks + ".csv");
+            foreach (Score score in scores)
             {
-                double buf = GetRate(records, i);
+                tw.WriteLine(score.ToString());
+            }
+            tw.Flush();
+        }
 
-                if (buf > ret)
+        private static double GetPrice(List<Record> records)
+        {
+            List<double> differ = new List<double>();
+
+            for (int i = 0; i < records.Count - 1; i++)
+            {
+                if (double.Parse(records[i].終値) > double.Parse(records[i + 1].安値))
                 {
-                    ret = buf;
+                    differ.Add(double.Parse(records[i].終値) - double.Parse(records[i + 1].安値));
                 }
             }
 
-            return ret;
-        }
-
-        private static double GetMin(List<Record> records)
-        {
-            double ret = double.MaxValue;
-
-            for (int i = 1; i < records.Count; i++)
-            {
-                double buf = GetRate(records, i);
-
-                if (buf < ret)
-                {
-                    ret = buf;
-                }
-            }
-
-            return ret;
-        }
-
-        private static double GetSum(List<Record> records)
-        {
-            double ret = 0.0;
-
-            for (int i = 1; i < records.Count; i++)
-            {
-                ret += GetRate(records, i);
-            }
-
-            return ret;
-        }
-
-        private static double GetLatest(List<Record> records)
-        {
-            return GetRate(records, records.Count - 1);
-        }
-
-        private static short GetDays(List<Record> records)
-        {
-            short ret = 0;
-
-            for (int i = 1; i < records.Count; i++)
-            {
-                if (GetRate(records, i) > 1.0)
-                {
-                    ret++;
-                }
-            }
-
-            return ret;
+            return double.Parse(records[records.Count - 1].終値) - differ.Average() * 3;
         }
 
         private static double GetTrend(List<Record> records)
@@ -188,7 +136,6 @@ namespace ConsoleApplication1
 
             for (int i = 0; i < records.Count; i++)
             {
-                //y[i] = double.Parse(records[i]._25DMA);
                 y[i] = (double.Parse(records[i].高値) + double.Parse(records[i].安値) + double.Parse(records[i].始値) + double.Parse(records[i].終値)) / 4;
             }
 
