@@ -87,28 +87,23 @@ namespace ConsoleApplication1
 
                     records.RemoveAt(0);
 
-                    List<Score> scores = new List<Score>();
+                    double today = GetTrend(records.GetRange(1, records.Count - 1));
+                    double yesterday = GetTrend(records.GetRange(0, records.Count - 1));
 
-                    for (int i = 0; i < records.Count - 200 + 1; i++)
+                    Console.WriteLine(s);
+
+                    Console.WriteLine(today / double.Parse(records[records.Count - 1].終値));
+
+                    //Console.WriteLine(yesterday);
+                    //Console.WriteLine(today);
+                    //Console.WriteLine(records.GetRange(1, records.Count - 1).Count);
+                    //Console.WriteLine(records.GetRange(0, records.Count - 1).Count);
+
+                    //if (today > 0 && yesterday > 0 && today > yesterday)
+                    if (today > 0 && yesterday > 0)
                     {
-                        Score score = new Score();
-
-                        List<Record> bufrecords = records.GetRange(i, 200);
-                        
-                        score.code = short.Parse(s.Substring(2, 4));
-                        score.days = GetDays(bufrecords);
-                        score.latest = GetLatest(bufrecords);
-                        score.max = GetMax(bufrecords);
-                        score.min = GetMin(bufrecords);
-                        score.sum = GetSum(bufrecords);
-                        score.trend = GetTrend(bufrecords);
-
-                        Console.Write(i + 200 + 1); Console.Write(',');
-                        Console.Write(records[i + 200 - 1].日付); Console.Write(',');
-                        Console.Write(score.code); Console.Write(',');
-                        Console.Write(score.trend); Console.Write('\n');
-
-                        scores.Add(score);
+                        //Console.Write("today / yesterday : ");
+                        Console.WriteLine(today / yesterday);
                     }
                 }
             }
@@ -193,7 +188,7 @@ namespace ConsoleApplication1
 
             for (int i = 0; i < records.Count; i++)
             {
-                y[i] = double.Parse(records[i]._25DMA);
+                //y[i] = double.Parse(records[i]._25DMA);
                 y[i] = (double.Parse(records[i].高値) + double.Parse(records[i].安値) + double.Parse(records[i].始値) + double.Parse(records[i].終値)) / 4;
             }
 
