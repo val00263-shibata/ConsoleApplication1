@@ -46,17 +46,22 @@ namespace ConsoleApplication1
 
             public int CompareTo(object obj)
             {
-                if (((Score)obj).直近傾きの上昇率 == 直近傾きの上昇率)
+                if (((Score)obj).直近日当たりの上昇率 == 直近日当たりの上昇率)
                 {
                     return 0;
                 }
-                return ((Score)obj).直近傾きの上昇率 > 直近傾きの上昇率 ? 1 : -1;
+                return ((Score)obj).直近日当たりの上昇率 > 直近日当たりの上昇率 ? 1 : -1;
             }
 
             public override string ToString()
             {
                 return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave; 
             }
+        }
+
+        private static bool CheckIsStockCSV(string s)
+        {
+            return s.EndsWith(".csv") == true && s.Length <= 10;
         }
 
         static void Main(string[] args)
@@ -67,7 +72,7 @@ namespace ConsoleApplication1
 
             foreach (string s in files)
             {
-                if (s.EndsWith(".csv") == true && s.Length <= 10)
+                if (CheckIsStockCSV(s) == true)
                 {
                     TextFieldParser parser = new TextFieldParser(s);
                     parser.TextFieldType = FieldType.Delimited;
@@ -105,7 +110,11 @@ namespace ConsoleApplication1
                     double today = GetTrend(records.GetRange(1, records.Count - 1));
                     double yesterday = GetTrend(records.GetRange(0, records.Count - 1));
 
-                    if (today > 0 && yesterday > 0)
+                    double block1 = GetTrend(records.GetRange(00, records.Count - 40));
+                    double block2 = GetTrend(records.GetRange(20, records.Count - 40));
+                    double block3 = GetTrend(records.GetRange(40, records.Count - 40));
+
+                    if (0 < block1 && block1 < block2 && block2 < block3)
                     {
                         Score score = new Score();
 
@@ -136,19 +145,31 @@ namespace ConsoleApplication1
         private static void CheckDuplicateFileSize(string[] files)
         {
             long[] filesizes = new long[files.Length];
+            string[] second_records = new string[files.Length];
+
             for (int i = 0; i < files.Length; i++)
             {
+                if (CheckIsStockCSV(files[i]) == false)
+                {
+                    continue;
+                }
+
                 FileInfo fi = new FileInfo(files[i]);
+
+                StreamReader sr = fi.OpenText();
+                sr.ReadLine();
+                string second_record = sr.ReadLine();
 
                 for (int j = 0; j < filesizes.Length; j++)
                 {
-                    if (filesizes[j] == fi.Length)
+                    if (filesizes[j] == fi.Length && second_records[j] == second_record)
                     {
                         throw new ApplicationException(files[i]);
                     }
                 }
 
                 filesizes[i] = fi.Length;
+                second_records[i] = second_record;
             }
         }
 
