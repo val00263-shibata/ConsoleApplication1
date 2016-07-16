@@ -33,27 +33,41 @@ namespace ConsoleApplication1
             public string コード;
             public double 直近日当たりの上昇率;
             public double 直近傾きの上昇率;
-            public double 注文買値;
+            public double 注文買値1;
+            public double 注文買値2;
+            public double 注文買値3;
+            public double minus_min;
+            public double minus_ave;
+            public double minus_max;
+            public double plus_min;
+            public double plus_ave;
+            public double plus_max;
+            public double current_wave;
 
             public int CompareTo(object obj)
             {
+                if (((Score)obj).直近傾きの上昇率 == 直近傾きの上昇率)
+                {
+                    return 0;
+                }
                 return ((Score)obj).直近傾きの上昇率 > 直近傾きの上昇率 ? 1 : -1;
             }
 
             public override string ToString()
             {
-                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 注文買値; 
+                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave; 
             }
         }
 
         static void Main(string[] args)
         {
             string[] files = Directory.GetFiles(".");
+            CheckDuplicateFileSize(files);
             List<Score> scores = new List<Score>();
 
             foreach (string s in files)
             {
-                if (s.EndsWith(".csv") == true)
+                if (s.EndsWith(".csv") == true && s.Length <= 10)
                 {
                     TextFieldParser parser = new TextFieldParser(s);
                     parser.TextFieldType = FieldType.Delimited;
@@ -96,9 +110,13 @@ namespace ConsoleApplication1
                         Score score = new Score();
 
                         score.コード = s.Substring(2, 4);
-                        score.直近日当たりの上昇率 = today / double.Parse(records[records.Count - 1].終値);
+                        score.直近日当たりの上昇率 = (double.Parse(records[records.Count - 1].終値) + today) / double.Parse(records[records.Count - 1].終値); // 株価の伸び率＝（今日の株価＋傾き）÷今日の株価
                         score.直近傾きの上昇率 = today / yesterday;
-                        score.注文買値 = GetPrice(records);
+                        score.注文買値1 = GetPrice(records, 1);
+                        score.注文買値2 = GetPrice(records, 2);
+                        score.注文買値3 = GetPrice(records, 3);
+
+                        score = Get_minus_min(records, score);
 
                         scores.Add(score);
                     }
@@ -115,7 +133,110 @@ namespace ConsoleApplication1
             tw.Flush();
         }
 
-        private static double GetPrice(List<Record> records)
+        private static void CheckDuplicateFileSize(string[] files)
+        {
+            long[] filesizes = new long[files.Length];
+            for (int i = 0; i < files.Length; i++)
+            {
+                FileInfo fi = new FileInfo(files[i]);
+
+                for (int j = 0; j < filesizes.Length; j++)
+                {
+                    if (filesizes[j] == fi.Length)
+                    {
+                        throw new ApplicationException(files[i]);
+                    }
+                }
+
+                filesizes[i] = fi.Length;
+            }
+        }
+
+        private static Score Get_minus_min(List<Record> records, Score score)
+        {
+            List<double[]> waves = new List<double[]>();
+            List<double> group = new List<double>();
+            List<double> group2 = new List<double>();
+
+            for (int i = 0; i < records.Count; i++)
+            {
+                if (double.Parse(records[i].前日比) < 0)
+                {
+                    group.Add(double.Parse(records[i].前日比));
+
+                    waves.Add(group2.ToArray());
+                    group2.Clear();
+                }
+                else
+                {
+                    group2.Add(double.Parse(records[i].前日比));
+
+                    waves.Add(group.ToArray());
+                    group.Clear();
+                }
+            }
+
+            List<double[]> m_waves = new List<double[]>();
+            List<double[]> p_waves = new List<double[]>();
+            List<double[]> c_waves = new List<double[]>();
+
+            if (group.Count > 0)
+            {
+                c_waves.Add(group.ToArray());
+            }
+            else
+            {
+                c_waves.Add(group2.ToArray());
+            }
+            
+            for (int i = 0; i < waves.Count; i++)
+            {
+                if (waves[i].Length == 0)
+                {
+                    continue;
+                }
+
+                if (waves[i][0] < 0)
+                {
+                    m_waves.Add(waves[i]);
+                }
+                else
+                {
+                    p_waves.Add(waves[i]);
+                }
+            }
+
+            List<double> m_waves_sum = new List<double>();
+            List<double> p_waves_sum = new List<double>();
+            List<double> c_waves_sum = new List<double>();
+
+            for (int i = 0; i < m_waves.Count; i++)
+            {
+                m_waves_sum.Add(m_waves[i].Sum());
+            }
+            for (int i = 0; i < p_waves.Count; i++)
+            {
+                p_waves_sum.Add(p_waves[i].Sum());
+            }
+            for (int i = 0; i < c_waves.Count; i++)
+            {
+                c_waves_sum.Add(c_waves[i].Sum());
+            }
+
+            score.minus_min = m_waves_sum.Min();
+            score.minus_ave = m_waves_sum.Average();
+            score.minus_max = m_waves_sum.Max();
+
+            score.plus_min = p_waves_sum.Min();
+            score.plus_ave = p_waves_sum.Average();
+            score.plus_max = p_waves_sum.Max();
+
+            score.current_wave = c_waves_sum[0];
+
+            return score;
+        }
+
+        private static double GetPrice(List<Record> records, byte rate)
         {
             List<double> differ = new List<double>();
 
@@ -127,7 +248,7 @@ namespace ConsoleApplication1
                 }
             }
 
-            return double.Parse(records[records.Count - 1].終値) - differ.Average() * 3;
+            return double.Parse(records[records.Count - 1].終値) - (differ.Average() * rate);
         }
 
         private static double GetTrend(List<Record> records)
