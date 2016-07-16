@@ -49,8 +49,6 @@ namespace ConsoleApplication1
 
         static void Main(string[] args)
         {
-            List<Score> scores = new List<Score>();
-
             string[] files = Directory.GetFiles(".");
             foreach (string s in files)
             {
@@ -89,25 +87,29 @@ namespace ConsoleApplication1
 
                     records.RemoveAt(0);
 
-                    Score score = new Score();
+                    List<Score> scores = new List<Score>();
 
-                    score.code = short.Parse(s.Substring(2, 4));
-                    score.days = GetDays(records);
-                    score.latest = GetLatest(records);
-                    score.max = GetMax(records);
-                    score.min = GetMin(records);
-                    score.sum = GetSum(records);
-                    score.trend = GetTrend(records);
+                    for (int i = 0; i < records.Count - 200 + 1; i++)
+                    {
+                        Score score = new Score();
 
-                    Console.Write(score.code); Console.Write(',');
-                    Console.Write(score.days); Console.Write(',');
-                    Console.Write(score.latest); Console.Write(',');
-                    Console.Write(score.max); Console.Write(',');
-                    Console.Write(score.min); Console.Write(',');
-                    Console.Write(score.sum); Console.Write(',');
-                    Console.Write(score.trend); Console.Write('\n');
+                        List<Record> bufrecords = records.GetRange(i, 200);
+                        
+                        score.code = short.Parse(s.Substring(2, 4));
+                        score.days = GetDays(bufrecords);
+                        score.latest = GetLatest(bufrecords);
+                        score.max = GetMax(bufrecords);
+                        score.min = GetMin(bufrecords);
+                        score.sum = GetSum(bufrecords);
+                        score.trend = GetTrend(bufrecords);
 
-                    scores.Add(score);
+                        Console.Write(i + 200 + 1); Console.Write(',');
+                        Console.Write(records[i + 200 - 1].日付); Console.Write(',');
+                        Console.Write(score.code); Console.Write(',');
+                        Console.Write(score.trend); Console.Write('\n');
+
+                        scores.Add(score);
+                    }
                 }
             }
 
