@@ -43,6 +43,7 @@ namespace ConsoleApplication1
             public double 直近日当たりの上昇率;
             public double 直近傾きの上昇率;
             public double 株価;
+            public double 加重平均株価;
             public double 注文買値1;
             public double 注文買値2;
             public double 注文買値3;
@@ -65,12 +66,12 @@ namespace ConsoleApplication1
 
             public override string ToString()
             {
-                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave; 
+                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 加重平均株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave; 
             }
 
             internal static string GetHeader()
             {
-                return "コード" + "," + "直近日当たりの上昇率" + "," + "直近傾きの上昇率" + "," + "株価" + "," + "注文買値1" + "," + "注文買値2" + "," + "注文買値3" + "," + "minus_min" + "," + "minus_ave" + "," + "minus_max" + "," + "plus_min" + "," + "plus_ave" + "," + "plus_max" + "," + "current_wave";
+                return "コード" + "," + "直近日当たりの上昇率" + "," + "直近傾きの上昇率" + "," + "株価" + "," + "加重平均株価" + "," + "注文買値1" + "," + "注文買値2" + "," + "注文買値3" + "," + "minus_min" + "," + "minus_ave" + "," + "minus_max" + "," + "plus_min" + "," + "plus_ave" + "," + "plus_max" + "," + "current_wave";
             }
         }
 
@@ -135,6 +136,7 @@ namespace ConsoleApplication1
 
                         score.コード = s.Substring(2, 4);
                         score.株価 = double.Parse(records[records.Count - 1].終値);
+                        score.加重平均株価 = GetWeightAveragePrice(records);
                         score.直近日当たりの上昇率 = (score.株価 + today) / score.株価; // 株価の伸び率＝（今日の株価＋傾き）÷今日の株価
                         score.直近傾きの上昇率 = today / yesterday;
                         score.注文買値1 = GetPrice(records, 1);
@@ -157,6 +159,20 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static double GetWeightAveragePrice(List<Record> records)
+        {
+            double ret = 0.0;
+            double vol_sum = 0.0;
+
+            for (int i = 0; i < records.Count; i++)
+            {
+                ret += double.Parse(records[i].終値) * double.Parse(records[i].出来高);
+                vol_sum += double.Parse(records[i].出来高);
+            }
+
+            return ret / vol_sum;
         }
 
         private static void CheckDuplicateFileSize(string[] files)
