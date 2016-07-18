@@ -54,6 +54,7 @@ namespace ConsoleApplication1
             public double plus_ave;
             public double plus_max;
             public double current_wave;
+            public byte _25DMA上昇回数;
 
             public int CompareTo(object obj)
             {
@@ -66,12 +67,12 @@ namespace ConsoleApplication1
 
             public override string ToString()
             {
-                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 加重平均株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave; 
+                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 加重平均株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave + "," + _25DMA上昇回数;
             }
 
             internal static string GetHeader()
             {
-                return "コード" + "," + "直近日当たりの上昇率" + "," + "直近傾きの上昇率" + "," + "株価" + "," + "加重平均株価" + "," + "注文買値1" + "," + "注文買値2" + "," + "注文買値3" + "," + "minus_min" + "," + "minus_ave" + "," + "minus_max" + "," + "plus_min" + "," + "plus_ave" + "," + "plus_max" + "," + "current_wave";
+                return "コード" + "," + "直近日当たりの上昇率" + "," + "直近傾きの上昇率" + "," + "株価" + "," + "加重平均株価" + "," + "注文買値1" + "," + "注文買値2" + "," + "注文買値3" + "," + "minus_min" + "," + "minus_ave" + "," + "minus_max" + "," + "plus_min" + "," + "plus_ave" + "," + "plus_max" + "," + "current_wave" + "," + "_25DMA上昇回数";
             }
         }
 
@@ -142,6 +143,7 @@ namespace ConsoleApplication1
                         score.注文買値1 = GetPrice(records, 1);
                         score.注文買値2 = GetPrice(records, 2);
                         score.注文買値3 = GetPrice(records, 3);
+                        score._25DMA上昇回数 = GetUpCount25DMA(records);
 
                         score = Get_minus_min(records, score);
 
@@ -159,6 +161,21 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static byte GetUpCount25DMA(List<Record> records)
+        {
+            byte ret = 0;
+
+            for (int i = 0; i < records.Count - 1; i++)
+            {
+                if (double.Parse(records[i]._25DMA) < double.Parse(records[i + 1]._25DMA))
+                {
+                    ret++;
+                }
+            }
+
+            return ret;
         }
 
         private static double GetWeightAveragePrice(List<Record> records)
