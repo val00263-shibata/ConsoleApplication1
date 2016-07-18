@@ -67,6 +67,11 @@ namespace ConsoleApplication1
             {
                 return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave; 
             }
+
+            internal static string GetHeader()
+            {
+                return "コード" + "," + "直近日当たりの上昇率" + "," + "直近傾きの上昇率" + "," + "株価" + "," + "注文買値1" + "," + "注文買値2" + "," + "注文買値3" + "," + "minus_min" + "," + "minus_ave" + "," + "minus_max" + "," + "plus_min" + "," + "plus_ave" + "," + "plus_max" + "," + "current_wave";
+            }
         }
 
         private static bool CheckIsStockCSV(string s)
@@ -146,6 +151,7 @@ namespace ConsoleApplication1
             scores.Sort();
 
             TextWriter tw = new StreamWriter(DateTime.Now.Ticks + ".csv");
+            tw.WriteLine(Score.GetHeader());
             foreach (Score score in scores)
             {
                 tw.WriteLine(score.ToString());
