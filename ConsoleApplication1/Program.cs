@@ -5,6 +5,15 @@ using System.Text;
 using System.IO;
 using Microsoft.VisualBasic.FileIO;
 
+/*/
+
+get header
+latest price
+加重平均
+_25DMA上昇回数
+
+/*/
+
 namespace ConsoleApplication1
 {
     class Program
@@ -33,6 +42,7 @@ namespace ConsoleApplication1
             public string コード;
             public double 直近日当たりの上昇率;
             public double 直近傾きの上昇率;
+            public double 株価;
             public double 注文買値1;
             public double 注文買値2;
             public double 注文買値3;
@@ -55,7 +65,7 @@ namespace ConsoleApplication1
 
             public override string ToString()
             {
-                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave; 
+                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave; 
             }
         }
 
@@ -119,7 +129,8 @@ namespace ConsoleApplication1
                         Score score = new Score();
 
                         score.コード = s.Substring(2, 4);
-                        score.直近日当たりの上昇率 = (double.Parse(records[records.Count - 1].終値) + today) / double.Parse(records[records.Count - 1].終値); // 株価の伸び率＝（今日の株価＋傾き）÷今日の株価
+                        score.株価 = double.Parse(records[records.Count - 1].終値);
+                        score.直近日当たりの上昇率 = (score.株価 + today) / score.株価; // 株価の伸び率＝（今日の株価＋傾き）÷今日の株価
                         score.直近傾きの上昇率 = today / yesterday;
                         score.注文買値1 = GetPrice(records, 1);
                         score.注文買値2 = GetPrice(records, 2);
