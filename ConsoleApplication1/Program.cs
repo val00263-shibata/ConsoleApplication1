@@ -31,6 +31,7 @@ namespace ConsoleApplication1
             public string 融資残高;
             public string 貸借倍率;
             public string 逆日歩;
+            public string 特別空売り料;
             public string _5DMA;
             public string _25DMA;
             public string _5DVMA;
@@ -55,6 +56,8 @@ namespace ConsoleApplication1
             public double plus_max;
             public double current_wave;
             public byte _25DMA上昇回数;
+            public double 取引量;
+            public bool is25up;
 
             public int CompareTo(object obj)
             {
@@ -67,12 +70,12 @@ namespace ConsoleApplication1
 
             public override string ToString()
             {
-                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 加重平均株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave + "," + _25DMA上昇回数;
+                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 加重平均株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave + "," + _25DMA上昇回数 + "," + 取引量 + "," + is25up;
             }
 
             internal static string GetHeader()
             {
-                return "コード" + "," + "直近日当たりの上昇率" + "," + "直近傾きの上昇率" + "," + "株価" + "," + "加重平均株価" + "," + "注文買値1" + "," + "注文買値2" + "," + "注文買値3" + "," + "minus_min" + "," + "minus_ave" + "," + "minus_max" + "," + "plus_min" + "," + "plus_ave" + "," + "plus_max" + "," + "current_wave" + "," + "_25DMA上昇回数";
+                return "コード" + "," + "直近日当たりの上昇率" + "," + "直近傾きの上昇率" + "," + "株価" + "," + "加重平均株価" + "," + "注文買値1" + "," + "注文買値2" + "," + "注文買値3" + "," + "minus_min" + "," + "minus_ave" + "," + "minus_max" + "," + "plus_min" + "," + "plus_ave" + "," + "plus_max" + "," + "current_wave" + "," + "_25DMA上昇回数" + "," + "取引量" + "," + "is25up";
             }
         }
 
@@ -103,6 +106,11 @@ namespace ConsoleApplication1
 
                         string[] column = parser.ReadFields();
 
+                        if (column.Length != 16)
+                        {
+                            throw new Exception(column.Length.ToString());
+                        }
+
                         record.日付 = column[0];
                         record.始値 = column[1];
                         record.高値 = column[2];
@@ -114,10 +122,11 @@ namespace ConsoleApplication1
                         record.融資残高 = column[8];
                         record.貸借倍率 = column[9];
                         record.逆日歩 = column[10];
-                        record._5DMA = column[11];
-                        record._25DMA = column[12];
-                        record._5DVMA = column[13];
-                        record._25DVMA = column[14];
+                        record.特別空売り料 = column[11];
+                        record._5DMA = column[12];
+                        record._25DMA = column[13];
+                        record._5DVMA = column[14];
+                        record._25DVMA = column[15];
 
                         records.Add(record);
                     }
@@ -131,7 +140,7 @@ namespace ConsoleApplication1
                     double block2 = GetTrend(records.GetRange(20, records.Count - 40));
                     double block3 = GetTrend(records.GetRange(40, records.Count - 40));
 
-                    if (0 < block1 && block1 < block2 && block2 < block3)
+                    //if (0 < block1 && block1 < block2 && block2 < block3)
                     {
                         Score score = new Score();
 
@@ -144,6 +153,8 @@ namespace ConsoleApplication1
                         score.注文買値2 = GetPrice(records, 2);
                         score.注文買値3 = GetPrice(records, 3);
                         score._25DMA上昇回数 = GetUpCount25DMA(records);
+                        score.取引量 = GetAllAmount(records);
+                        score.is25up = double.Parse(records[records.Count - 2]._25DMA) < double.Parse(records[records.Count - 1]._25DMA);
 
                         score = Get_minus_min(records, score);
 
@@ -161,6 +172,19 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static double GetAllAmount(List<Record> records)
+        {
+            double ret = 0;
+
+            for (int i = 0; i < records.Count - 1; i++)
+            {
+                double price = (double.Parse(records[i].高値) + double.Parse(records[i].安値) + double.Parse(records[i].始値) + double.Parse(records[i].終値)) / 4;
+                ret += price * double.Parse(records[i].出来高);
+            }
+
+            return ret;
         }
 
         private static byte GetUpCount25DMA(List<Record> records)
