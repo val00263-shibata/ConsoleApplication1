@@ -59,6 +59,7 @@ namespace ConsoleApplication1
             public double 取引量;
             public bool is25up;
             public double _25DMA乖離率;
+            public double 加重平均乖離率;
 
             public int CompareTo(object obj)
             {
@@ -71,12 +72,54 @@ namespace ConsoleApplication1
 
             public override string ToString()
             {
-                return コード + "," + 直近日当たりの上昇率 + "," + 直近傾きの上昇率 + "," + 株価 + "," + 加重平均株価 + "," + 注文買値1 + "," + 注文買値2 + "," + 注文買値3 + "," + minus_min + "," + minus_ave + "," + minus_max + "," + plus_min + "," + plus_ave + "," + plus_max + "," + current_wave + "," + _25DMA上昇回数 + "," + 取引量 + "," + is25up + "," + _25DMA乖離率;
+                return
+                    ""  + コード + 
+                    "," + 直近日当たりの上昇率 + 
+                    "," + 直近傾きの上昇率 + 
+                    "," + 株価 + 
+                    "," + 加重平均株価 + 
+                    "," + 注文買値1 + 
+                    "," + 注文買値2 + 
+                    "," + 注文買値3 + 
+                    "," + minus_min + 
+                    "," + minus_ave + 
+                    "," + minus_max + 
+                    "," + plus_min + 
+                    "," + plus_ave + 
+                    "," + plus_max + 
+                    "," + current_wave + 
+                    "," + _25DMA上昇回数 + 
+                    "," + 取引量 + 
+                    "," + is25up + 
+                    "," + _25DMA乖離率 + 
+                    "," + 加重平均乖離率 +
+                    ""  ;
             }
 
             internal static string GetHeader()
             {
-                return "コード" + "," + "直近日当たりの上昇率" + "," + "直近傾きの上昇率" + "," + "株価" + "," + "加重平均株価" + "," + "注文買値1" + "," + "注文買値2" + "," + "注文買値3" + "," + "minus_min" + "," + "minus_ave" + "," + "minus_max" + "," + "plus_min" + "," + "plus_ave" + "," + "plus_max" + "," + "current_wave" + "," + "_25DMA上昇回数" + "," + "取引量" + "," + "is25up" + "," + "_25DMA乖離率";
+                return
+                    ""  + "コード" + 
+                    "," + "直近日当たりの上昇率" + 
+                    "," + "直近傾きの上昇率" + 
+                    "," + "株価" + 
+                    "," + "加重平均株価" + 
+                    "," + "注文買値1" + 
+                    "," + "注文買値2" + 
+                    "," + "注文買値3" + 
+                    "," + "minus_min" + 
+                    "," + "minus_ave" + 
+                    "," + "minus_max" + 
+                    "," + "plus_min" + 
+                    "," + "plus_ave" + 
+                    "," + "plus_max" + 
+                    "," + "current_wave" + 
+                    "," + "_25DMA上昇回数" + 
+                    "," + "取引量" + 
+                    "," + "is25up" + 
+                    "," + "_25DMA乖離率" +
+                    "," + "加重平均乖離率" + 
+                    ""  ;
             }
         }
 
@@ -157,6 +200,7 @@ namespace ConsoleApplication1
                         score.取引量 = GetAllAmount(records);
                         score.is25up = double.Parse(records[records.Count - 2]._25DMA) < double.Parse(records[records.Count - 1]._25DMA);
                         score._25DMA乖離率 = (double.Parse(records[records.Count - 1].終値) / double.Parse(records[records.Count - 1]._25DMA) - 1) * 100;
+                        score.加重平均乖離率 = score.株価 / score.加重平均株価;
 
                         score = Get_minus_min(records, score);
 
