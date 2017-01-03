@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Linq.Expressions;
 using Microsoft.VisualBasic.FileIO;
 
 /*/
@@ -60,6 +61,7 @@ namespace ConsoleApplication1
             public bool is25up;
             public double _25DMA乖離率;
             public double 加重平均乖離率;
+            public bool is25RateUP;
 
             public int CompareTo(object obj)
             {
@@ -73,52 +75,62 @@ namespace ConsoleApplication1
             public override string ToString()
             {
                 return
-                    ""  + コード + 
-                    "," + 直近日当たりの上昇率 + 
-                    "," + 直近傾きの上昇率 + 
-                    "," + 株価 + 
-                    "," + 加重平均株価 + 
-                    "," + 注文買値1 + 
-                    "," + 注文買値2 + 
-                    "," + 注文買値3 + 
-                    "," + minus_min + 
-                    "," + minus_ave + 
-                    "," + minus_max + 
-                    "," + plus_min + 
-                    "," + plus_ave + 
-                    "," + plus_max + 
-                    "," + current_wave + 
-                    "," + _25DMA上昇回数 + 
-                    "," + 取引量 + 
-                    "," + is25up + 
-                    "," + _25DMA乖離率 + 
+                    ""  + コード +
+                    "," + 直近日当たりの上昇率 +
+                    "," + 直近傾きの上昇率 +
+                    "," + 株価 +
+                    "," + 加重平均株価 +
+                    "," + 注文買値1 +
+                    "," + 注文買値2 +
+                    "," + 注文買値3 +
+                    "," + minus_min +
+                    "," + minus_ave +
+                    "," + minus_max +
+                    "," + plus_min +
+                    "," + plus_ave +
+                    "," + plus_max +
+                    "," + current_wave +
+                    "," + _25DMA上昇回数 +
+                    "," + 取引量 +
+                    "," + is25up +
+                    "," + _25DMA乖離率 +
                     "," + 加重平均乖離率 +
+                    "," + is25RateUP +
                     ""  ;
+            }
+
+            private static string GetName<T>(Expression<Func<T>> e)
+            {
+                var member = (MemberExpression)e.Body;
+                return member.Member.Name;
             }
 
             internal static string GetHeader()
             {
+                Score score = new Score();
+
                 return
-                    ""  + "コード" + 
-                    "," + "直近日当たりの上昇率" + 
-                    "," + "直近傾きの上昇率" + 
-                    "," + "株価" + 
-                    "," + "加重平均株価" + 
-                    "," + "注文買値1" + 
-                    "," + "注文買値2" + 
-                    "," + "注文買値3" + 
-                    "," + "minus_min" + 
-                    "," + "minus_ave" + 
-                    "," + "minus_max" + 
-                    "," + "plus_min" + 
-                    "," + "plus_ave" + 
-                    "," + "plus_max" + 
-                    "," + "current_wave" + 
-                    "," + "_25DMA上昇回数" + 
-                    "," + "取引量" + 
-                    "," + "is25up" + 
-                    "," + "_25DMA乖離率" +
-                    "," + "加重平均乖離率" + 
+                    ""  + GetName(() => score.コード) +
+                    "," + GetName(() => score.直近日当たりの上昇率) +
+                    "," + GetName(() => score.直近傾きの上昇率) +
+                    "," + GetName(() => score.株価) +
+                    "," + GetName(() => score.加重平均株価) +
+                    "," + GetName(() => score.注文買値1) +
+                    "," + GetName(() => score.注文買値2) +
+                    "," + GetName(() => score.注文買値3) +
+                    "," + GetName(() => score.minus_min) +
+                    "," + GetName(() => score.minus_ave) +
+                    "," + GetName(() => score.minus_max) +
+                    "," + GetName(() => score.plus_min) +
+                    "," + GetName(() => score.plus_ave) +
+                    "," + GetName(() => score.plus_max) +
+                    "," + GetName(() => score.current_wave) +
+                    "," + GetName(() => score._25DMA上昇回数) +
+                    "," + GetName(() => score.取引量) +
+                    "," + GetName(() => score.is25up) +
+                    "," + GetName(() => score._25DMA乖離率) +
+                    "," + GetName(() => score.加重平均乖離率) +
+                    "," + GetName(() => score.is25RateUP) +
                     ""  ;
             }
         }
@@ -201,6 +213,7 @@ namespace ConsoleApplication1
                         score.is25up = double.Parse(records[records.Count - 2]._25DMA) < double.Parse(records[records.Count - 1]._25DMA);
                         score._25DMA乖離率 = (double.Parse(records[records.Count - 1].終値) / double.Parse(records[records.Count - 1]._25DMA) - 1) * 100;
                         score.加重平均乖離率 = score.株価 / score.加重平均株価;
+                        score.is25RateUP = GetIs25RateUP(records);
 
                         score = Get_minus_min(records, score);
 
@@ -218,6 +231,19 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static bool GetIs25RateUP(List<Record> records)
+        {
+            double prevday_price = double.Parse(records[records.Count - 2].終値);
+            double prevday_25DMA = double.Parse(records[records.Count - 2]._25DMA);
+            double prevday_rate = prevday_price / prevday_25DMA;
+
+            double lastday_price = double.Parse(records[records.Count - 1].終値);
+            double lastday_25DMA = double.Parse(records[records.Count - 1]._25DMA);
+            double lastday_rate = lastday_price / lastday_25DMA;
+
+            return prevday_rate < lastday_rate;
         }
 
         private static double GetAllAmount(List<Record> records)
