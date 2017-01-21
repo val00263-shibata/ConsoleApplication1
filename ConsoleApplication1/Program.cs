@@ -57,20 +57,12 @@ namespace ConsoleApplication1
             public double plus_max;
             public double current_wave;
             public byte _25DMA上昇回数;
-            public double 取引量;
+            public ulong 取引量;
             public bool is25up;
             public double _25DMA乖離率;
             public double 加重平均乖離率;
             public bool is25RateUP;
-
-            public int CompareTo(object obj)
-            {
-                if (((Score)obj).直近日当たりの上昇率 == 直近日当たりの上昇率)
-                {
-                    return 0;
-                }
-                return ((Score)obj).直近日当たりの上昇率 > 直近日当たりの上昇率 ? 1 : -1;
-            }
+            public bool convex;
 
             public override string ToString()
             {
@@ -96,13 +88,8 @@ namespace ConsoleApplication1
                     "," + _25DMA乖離率 +
                     "," + 加重平均乖離率 +
                     "," + is25RateUP +
-                    ""  ;
-            }
-
-            private static string GetName<T>(Expression<Func<T>> e)
-            {
-                var member = (MemberExpression)e.Body;
-                return member.Member.Name;
+                    "," + convex +
+                    "";
             }
 
             internal static string GetHeader()
@@ -131,7 +118,23 @@ namespace ConsoleApplication1
                     "," + GetName(() => score._25DMA乖離率) +
                     "," + GetName(() => score.加重平均乖離率) +
                     "," + GetName(() => score.is25RateUP) +
-                    ""  ;
+                    "," + GetName(() => score.convex) +
+                    "";
+            }
+
+            private static string GetName<T>(Expression<Func<T>> e)
+            {
+                var member = (MemberExpression)e.Body;
+                return member.Member.Name;
+            }
+
+            public int CompareTo(object obj)
+            {
+                if (((Score)obj).直近日当たりの上昇率 == 直近日当たりの上昇率)
+                {
+                    return 0;
+                }
+                return ((Score)obj).直近日当たりの上昇率 > 直近日当たりの上昇率 ? 1 : -1;
             }
         }
 
@@ -209,11 +212,12 @@ namespace ConsoleApplication1
                         score.注文買値2 = GetPrice(records, 2);
                         score.注文買値3 = GetPrice(records, 3);
                         score._25DMA上昇回数 = GetUpCount25DMA(records);
-                        score.取引量 = GetAllAmount(records);
+                        score.取引量 = (ulong)GetAllAmount(records);
                         score.is25up = double.Parse(records[records.Count - 2]._25DMA) < double.Parse(records[records.Count - 1]._25DMA);
                         score._25DMA乖離率 = (double.Parse(records[records.Count - 1].終値) / double.Parse(records[records.Count - 1]._25DMA) - 1) * 100;
                         score.加重平均乖離率 = score.株価 / score.加重平均株価;
                         score.is25RateUP = GetIs25RateUP(records);
+                        score.convex = GetConvex(records);
 
                         score = Get_minus_min(records, score);
 
@@ -231,6 +235,20 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static bool GetConvex(List<Record> records)
+        {
+            return GetConvex(records[records.Count - 3], records[records.Count - 2], records[records.Count - 1]);
+        }
+
+        private static bool GetConvex(Record 二日前, Record 一日前, Record 本日)
+        {
+            double 二日前_25DMA = double.Parse(二日前._25DMA);
+            double 一日前_25DMA = double.Parse(一日前._25DMA);
+            double 本日_25DMA = double.Parse(本日._25DMA);
+            
+            return 本日_25DMA / 一日前_25DMA > 一日前_25DMA / 二日前_25DMA;
         }
 
         private static bool GetIs25RateUP(List<Record> records)
