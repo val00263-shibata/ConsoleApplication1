@@ -192,6 +192,8 @@ namespace ConsoleApplication1
 
                     records.RemoveAt(0);
 
+                    CheckDateSort(records);
+
                     double today = GetTrend(records.GetRange(1, records.Count - 1));
                     double yesterday = GetTrend(records.GetRange(0, records.Count - 1));
 
@@ -304,6 +306,25 @@ namespace ConsoleApplication1
             }
 
             return ret / vol_sum;
+        }
+
+        private static void CheckDateSort(List<Record> records)
+        {
+            CheckDateSort(records[0], records[1]);
+        }
+
+        private static void CheckDateSort(Record 一番目, Record 二番目)
+        {
+            DateTime first_record_date  = DateTime.Parse(一番目.日付.Trim('\"'));
+            DateTime second_record_date = DateTime.Parse(二番目.日付.Trim('\"'));
+            
+            if(first_record_date < second_record_date)
+            {
+            }
+            else
+            {
+                throw new ApplicationException();
+            }
         }
 
         private static void CheckDuplicateFileSize(string[] files)
