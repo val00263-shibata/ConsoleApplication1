@@ -44,7 +44,9 @@ namespace ConsoleApplication1
             public string コード;
             public double 直近日当たりの上昇率;
             public double 直近傾きの上昇率;
+            public double 最低株価;
             public double 株価;
+            public double 最高株価;
             public double 加重平均株価;
             public double 注文買値1;
             public double 注文買値2;
@@ -70,7 +72,9 @@ namespace ConsoleApplication1
                     ""  + コード +
                     "," + 直近日当たりの上昇率 +
                     "," + 直近傾きの上昇率 +
+                    "," + 最低株価 +
                     "," + 株価 +
+                    "," + 最高株価 +
                     "," + 加重平均株価 +
                     "," + 注文買値1 +
                     "," + 注文買値2 +
@@ -100,7 +104,9 @@ namespace ConsoleApplication1
                     ""  + GetName(() => score.コード) +
                     "," + GetName(() => score.直近日当たりの上昇率) +
                     "," + GetName(() => score.直近傾きの上昇率) +
+                    "," + GetName(() => score.最低株価) +
                     "," + GetName(() => score.株価) +
+                    "," + GetName(() => score.最高株価) +
                     "," + GetName(() => score.加重平均株価) +
                     "," + GetName(() => score.注文買値1) +
                     "," + GetName(() => score.注文買値2) +
@@ -206,7 +212,9 @@ namespace ConsoleApplication1
                         Score score = new Score();
 
                         score.コード = s.Substring(2, 4);
+                        score.最低株価 = GetLowPrice(records);
                         score.株価 = double.Parse(records[records.Count - 1].終値);
+                        score.最高株価 = GetHighPrice(records);
                         score.加重平均株価 = GetWeightAveragePrice(records);
                         score.直近日当たりの上昇率 = (score.株価 + today) / score.株価; // 株価の伸び率＝（今日の株価＋傾き）÷今日の株価
                         score.直近傾きの上昇率 = today / yesterday;
@@ -237,6 +245,32 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static double GetLowPrice(List<Record> records)
+        {
+            double ret = double.MaxValue;
+
+            foreach (Record record in records)
+            {
+                double price = (double.Parse(record.高値) + double.Parse(record.安値) + double.Parse(record.始値) + double.Parse(record.終値)) / 4;
+                ret = price < ret ? price : ret;
+            }
+
+            return ret;
+        }
+
+        private static double GetHighPrice(List<Record> records)
+        {
+            double ret = double.MinValue;
+
+            foreach (Record record in records)
+            {
+                double price = (double.Parse(record.高値) + double.Parse(record.安値) + double.Parse(record.始値) + double.Parse(record.終値)) / 4;
+                ret = price > ret ? price : ret;
+            }
+
+            return ret;
         }
 
         private static bool GetConvex(List<Record> records)
