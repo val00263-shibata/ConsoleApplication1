@@ -65,6 +65,7 @@ namespace ConsoleApplication1
             public double 加重平均乖離率;
             public bool is25RateUP;
             public bool convex;
+            public ushort one_per_win;
 
             public override string ToString()
             {
@@ -93,6 +94,7 @@ namespace ConsoleApplication1
                     "," + 加重平均乖離率 +
                     "," + is25RateUP +
                     "," + convex +
+                    "," + one_per_win +
                     "";
             }
 
@@ -125,6 +127,7 @@ namespace ConsoleApplication1
                     "," + GetName(() => score.加重平均乖離率) +
                     "," + GetName(() => score.is25RateUP) +
                     "," + GetName(() => score.convex) +
+                    "," + GetName(() => score.one_per_win) +
                     "";
             }
 
@@ -228,6 +231,7 @@ namespace ConsoleApplication1
                         score.加重平均乖離率 = score.株価 / score.加重平均株価;
                         score.is25RateUP = GetIs25RateUP(records);
                         score.convex = GetConvex(records);
+                        score.one_per_win = GetOnePerWin(records);
 
                         score = Get_minus_min(records, score);
 
@@ -245,6 +249,42 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static ushort GetOnePerWin(List<Record> records)
+        {
+            ushort ret = 0;
+
+            for (int i = 0; i < records.Count - 5; i++)
+            {
+                double price = double.Parse(records[i].始値);
+
+                if (false)
+                {
+                }
+                else if (price * 1.01 < double.Parse(records[i + 1].高値))
+                {
+                    ret++;
+                }
+                else if (price * 1.01 < double.Parse(records[i + 2].高値))
+                {
+                    ret++;
+                }
+                else if (price * 1.01 < double.Parse(records[i + 3].高値))
+                {
+                    ret++;
+                }
+                else if (price * 1.01 < double.Parse(records[i + 4].高値))
+                {
+                    ret++;
+                }
+                else if (price * 1.01 < double.Parse(records[i + 5].高値))
+                {
+                    ret++;
+                }
+            }
+
+            return ret;
         }
 
         private static double GetLowPrice(List<Record> records)
