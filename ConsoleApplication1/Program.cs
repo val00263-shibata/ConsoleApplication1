@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Linq.Expressions;
+using System.Diagnostics;
 using Microsoft.VisualBasic.FileIO;
 
 /*/
@@ -68,6 +69,7 @@ namespace ConsoleApplication1
             public bool convex;
             public ushort one_per_win;
             public string price_line;
+            public double mapping_candle;
 
             public override string ToString()
             {
@@ -98,6 +100,7 @@ namespace ConsoleApplication1
                     "," + convex +
                     "," + one_per_win +
                     "," + price_line +
+                    "," + mapping_candle +
                     "";
             }
 
@@ -132,6 +135,7 @@ namespace ConsoleApplication1
                     "," + GetName(() => score.convex) +
                     "," + GetName(() => score.one_per_win) +
                     "," + GetName(() => score.price_line) +
+                    "," + GetName(() => score.mapping_candle) +
                     "";
             }
 
@@ -156,8 +160,91 @@ namespace ConsoleApplication1
             return s.EndsWith(".csv") == true && s.Length <= 10;
         }
 
+        private static void TestIncludeMapping()
+        {
+            Record record100200 = new Record();
+            record100200.始値 = "100";
+            record100200.終値 = "200";
+
+            Record record150250 = new Record();
+            record150250.始値 = "150";
+            record150250.終値 = "250";
+            Record record050150 = new Record();
+            record050150.始値 = "50";
+            record050150.終値 = "150";
+            Record record110190 = new Record();
+            record110190.始値 = "110";
+            record110190.終値 = "190";
+            Record record090210 = new Record();
+            record090210.始値 = "90";
+            record090210.終値 = "210";
+
+            Debug.Assert(IncludeMapping(record100200, record150250) == true);
+            Debug.Assert(IncludeMapping(record100200, record050150) == true);
+            Debug.Assert(IncludeMapping(record100200, record110190) == true);
+            Debug.Assert(IncludeMapping(record100200, record090210) == true);
+
+            Record record250150 = new Record();
+            record250150.始値 = "250";
+            record250150.終値 = "150";
+            Record record150050 = new Record();
+            record150050.始値 = "150";
+            record150050.終値 = "50";
+            Record record190110 = new Record();
+            record190110.始値 = "190";
+            record190110.終値 = "110";
+            Record record210090 = new Record();
+            record210090.始値 = "210";
+            record210090.終値 = "90";
+
+            Debug.Assert(IncludeMapping(record100200, record250150) == true);
+            Debug.Assert(IncludeMapping(record100200, record150050) == true);
+            Debug.Assert(IncludeMapping(record100200, record190110) == true);
+            Debug.Assert(IncludeMapping(record100200, record210090) == true);
+
+            Record record200100 = new Record();
+            record200100.始値 = "200";
+            record200100.終値 = "100";
+
+            Debug.Assert(IncludeMapping(record200100, record150250) == true);
+            Debug.Assert(IncludeMapping(record200100, record050150) == true);
+            Debug.Assert(IncludeMapping(record200100, record110190) == true);
+            Debug.Assert(IncludeMapping(record200100, record090210) == true);
+
+            Debug.Assert(IncludeMapping(record200100, record250150) == true);
+            Debug.Assert(IncludeMapping(record200100, record150050) == true);
+            Debug.Assert(IncludeMapping(record200100, record190110) == true);
+            Debug.Assert(IncludeMapping(record200100, record210090) == true);
+
+            Record record080090 = new Record();
+            record080090.始値 = "80";
+            record080090.終値 = "90";
+            Record record090080 = new Record();
+            record090080.始値 = "90";
+            record090080.終値 = "80";
+
+            Debug.Assert(IncludeMapping(record100200, record080090) == false);
+            Debug.Assert(IncludeMapping(record100200, record090080) == false);
+            Debug.Assert(IncludeMapping(record200100, record080090) == false);
+            Debug.Assert(IncludeMapping(record200100, record090080) == false);
+
+            Record record210220 = new Record();
+            record210220.始値 = "210";
+            record210220.終値 = "220";
+            Record record220210 = new Record();
+            record220210.始値 = "220";
+            record220210.終値 = "210";
+
+            Debug.Assert(IncludeMapping(record100200, record210220) == false);
+            Debug.Assert(IncludeMapping(record100200, record220210) == false);
+            Debug.Assert(IncludeMapping(record200100, record210220) == false);
+            Debug.Assert(IncludeMapping(record200100, record220210) == false);
+        }
+
         static void Main(string[] args)
         {
+            TestIncludeMapping();
+
             string[] files = Directory.GetFiles(".");
             CheckDuplicateFileSize(files);
             List<Score> scores = new List<Score>();
@@ -237,6 +324,7 @@ namespace ConsoleApplication1
                         score.convex = GetConvex(records);
                         score.one_per_win = GetOnePerWin(records);
                         score.price_line = GetPriceLine(records);
+                        score.mapping_candle = GetMappingCandle(records);
 
                         score = Get_minus_min(records, score);
 
@@ -254,6 +342,106 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static string CutComma(string str)
+        {
+            return str.Replace(",", "");
+        }
+
+        private static double GetMappingCandle(List<Record> records)
+        {
+            List<int> mapping_volumes = new List<int>(new int[records.Count]);
+            int i = -1;
+
+            foreach (Record record in records)
+            {
+                i++;
+
+                foreach (Record cmp_record in records)
+                {
+                    if (record.日付 == cmp_record.日付)
+                    {
+                        continue;
+                    }
+
+                    if (IncludeMapping(record, cmp_record) == true)
+                    {
+                        mapping_volumes[i] += int.Parse(CutComma(cmp_record.出来高));
+                    }
+                }
+            }
+
+            int max = int.MinValue;
+            int max_index = int.MinValue;
+            i = -1;
+
+            foreach (int mapping_volume in mapping_volumes)
+            {
+                i++;
+
+                if (max < mapping_volume)
+                {
+                    max = mapping_volume;
+                    max_index = i;
+                }
+            }
+
+            return (double.Parse(records[max_index].始値) + double.Parse(records[max_index].終値)) / 2;
+        }
+
+        private static bool IncludeMapping(Record record, Record cmp_record)
+        {
+            if (double.Parse(record.始値) <= double.Parse(record.終値))
+            {
+                if (double.Parse(cmp_record.始値) <= double.Parse(cmp_record.終値))
+                {
+                    if (double.Parse(record.終値) >= double.Parse(cmp_record.始値) && double.Parse(record.始値) <= double.Parse(cmp_record.終値))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (double.Parse(record.始値) <= double.Parse(cmp_record.始値) && double.Parse(record.終値) >= double.Parse(cmp_record.終値))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if (double.Parse(cmp_record.始値) <= double.Parse(cmp_record.終値))
+                {
+                    if (double.Parse(record.始値) >= double.Parse(cmp_record.始値) && double.Parse(record.終値) <= double.Parse(cmp_record.終値))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (double.Parse(record.終値) <= double.Parse(cmp_record.始値) && double.Parse(record.始値) >= double.Parse(cmp_record.終値))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
         }
 
         private static string GetPriceLine(List<Record> records)
@@ -314,7 +502,7 @@ namespace ConsoleApplication1
                 }
             }
 
-            return key.Replace(",", "");
+            return CutComma(key);
         }
 
         private static ushort GetOnePerWin(List<Record> records)
