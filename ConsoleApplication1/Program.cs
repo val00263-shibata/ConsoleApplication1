@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -66,6 +67,7 @@ namespace ConsoleApplication1
             public bool is25RateUP;
             public bool convex;
             public ushort one_per_win;
+            public string price_line;
 
             public override string ToString()
             {
@@ -95,6 +97,7 @@ namespace ConsoleApplication1
                     "," + is25RateUP +
                     "," + convex +
                     "," + one_per_win +
+                    "," + price_line +
                     "";
             }
 
@@ -128,6 +131,7 @@ namespace ConsoleApplication1
                     "," + GetName(() => score.is25RateUP) +
                     "," + GetName(() => score.convex) +
                     "," + GetName(() => score.one_per_win) +
+                    "," + GetName(() => score.price_line) +
                     "";
             }
 
@@ -232,6 +236,7 @@ namespace ConsoleApplication1
                         score.is25RateUP = GetIs25RateUP(records);
                         score.convex = GetConvex(records);
                         score.one_per_win = GetOnePerWin(records);
+                        score.price_line = GetPriceLine(records);
 
                         score = Get_minus_min(records, score);
 
@@ -249,6 +254,67 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static string GetPriceLine(List<Record> records)
+        {
+            Hashtable hashtable = new Hashtable();
+            int i = 0;
+
+            foreach (Record record in records)
+            {
+                if (hashtable[records[i].始値] == null)
+                {
+                    hashtable[records[i].始値] = double.Parse(records[i].出来高) / 4;
+                }
+                else
+                {
+                    hashtable[records[i].始値] = double.Parse(records[i].出来高) / 4 + (double)hashtable[records[i].始値];
+                }
+
+                if (hashtable[records[i].終値] == null)
+                {
+                    hashtable[records[i].終値] = double.Parse(records[i].出来高) / 4;
+                }
+                else
+                {
+                    hashtable[records[i].終値] = double.Parse(records[i].出来高) / 4 + (double)hashtable[records[i].終値];
+                }
+
+                if (hashtable[records[i].安値] == null)
+                {
+                    hashtable[records[i].安値] = double.Parse(records[i].出来高) / 4;
+                }
+                else
+                {
+                    hashtable[records[i].安値] = double.Parse(records[i].出来高) / 4 + (double)hashtable[records[i].安値];
+                }
+
+                if (hashtable[records[i].高値] == null)
+                {
+                    hashtable[records[i].高値] = double.Parse(records[i].出来高) / 4;
+                }
+                else
+                {
+                    hashtable[records[i].高値] = double.Parse(records[i].出来高) / 4 + (double)hashtable[records[i].高値];
+                }
+
+                i++;
+            }
+
+            double max = double.MinValue;
+            string key = "";
+
+            foreach (DictionaryEntry de in hashtable)
+            {
+                if (max < (double)de.Value)
+                {
+                    max = (double)de.Value;
+                    key = (string)de.Key;
+                }
+            }
+
+            return key.Replace(",", "");
         }
 
         private static ushort GetOnePerWin(List<Record> records)
@@ -344,7 +410,7 @@ namespace ConsoleApplication1
         {
             double ret = 0;
 
-            for (int i = 0; i < records.Count - 1; i++)
+            for (int i = 0; i < records.Count; i++)
             {
                 double price = (double.Parse(records[i].高値) + double.Parse(records[i].安値) + double.Parse(records[i].始値) + double.Parse(records[i].終値)) / 4;
                 ret += price * double.Parse(records[i].出来高);
