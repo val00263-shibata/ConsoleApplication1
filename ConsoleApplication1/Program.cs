@@ -265,27 +265,48 @@ namespace ConsoleApplication1
 
                         string[] column = parser.ReadFields();
 
-                        if (column.Length != 16)
+                        if (column.Length == 16)
+                        {
+                            record.日付 = column[0];
+                            record.始値 = column[1];
+                            record.高値 = column[2];
+                            record.安値 = column[3];
+                            record.終値 = column[4];
+                            record.前日比 = column[5];
+                            record.出来高 = column[6];
+                            record.貸株残高 = column[7];
+                            record.融資残高 = column[8];
+                            record.貸借倍率 = column[9];
+                            record.逆日歩 = column[10];
+                            record.特別空売り料 = column[11];
+                            record._5DMA = column[12];
+                            record._25DMA = column[13];
+                            record._5DVMA = column[14];
+                            record._25DVMA = column[15];
+                        }
+                        else if (column.Length == 11)
+                        {
+                            record.日付 = column[0];
+                            record.始値 = column[1];
+                            record.高値 = column[2];
+                            record.安値 = column[3];
+                            record.終値 = column[4];
+                            record.前日比 = "0";
+                            record.出来高 = column[5];
+                            record.貸株残高 = "0";
+                            record.融資残高 = "0";
+                            record.貸借倍率 = "0";
+                            record.逆日歩 = "0";
+                            record.特別空売り料 = "0";
+                            record._5DMA = column[9];
+                            record._25DMA = column[10];
+                            record._5DVMA = "0";
+                            record._25DVMA = "0";
+                        }
+                        else
                         {
                             throw new Exception(column.Length.ToString());
                         }
-
-                        record.日付 = column[0];
-                        record.始値 = column[1];
-                        record.高値 = column[2];
-                        record.安値 = column[3];
-                        record.終値 = column[4];
-                        record.前日比 = column[5];
-                        record.出来高 = column[6];
-                        record.貸株残高 = column[7];
-                        record.融資残高 = column[8];
-                        record.貸借倍率 = column[9];
-                        record.逆日歩 = column[10];
-                        record.特別空売り料 = column[11];
-                        record._5DMA = column[12];
-                        record._25DMA = column[13];
-                        record._5DVMA = column[14];
-                        record._25DVMA = column[15];
 
                         records.Add(record);
                     }
@@ -757,6 +778,13 @@ namespace ConsoleApplication1
                 c_waves_sum.Add(c_waves[i].Sum());
             }
 
+            score.current_wave = c_waves_sum[0];
+
+            if(m_waves_sum.Count == 0 || p_waves_sum.Count == 0)
+            {
+                return score;
+            }
+
             score.minus_min = m_waves_sum.Min();
             score.minus_ave = m_waves_sum.Average();
             score.minus_max = m_waves_sum.Max();
@@ -764,8 +792,6 @@ namespace ConsoleApplication1
             score.plus_min = p_waves_sum.Min();
             score.plus_ave = p_waves_sum.Average();
             score.plus_max = p_waves_sum.Max();
-
-            score.current_wave = c_waves_sum[0];
 
             return score;
         }
