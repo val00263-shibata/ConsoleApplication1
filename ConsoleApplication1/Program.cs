@@ -71,6 +71,7 @@ namespace ConsoleApplication1
             public string price_line;
             public double mapping_candle;
             public string price_line2;
+            public double price_line3;
 
             public override string ToString()
             {
@@ -103,6 +104,7 @@ namespace ConsoleApplication1
                     "," + price_line +
                     "," + mapping_candle +
                     "," + price_line2 +
+                    "," + price_line3 +
                     "";
             }
 
@@ -139,6 +141,7 @@ namespace ConsoleApplication1
                     "," + GetName(() => score.price_line) +
                     "," + GetName(() => score.mapping_candle) +
                     "," + GetName(() => score.price_line2) +
+                    "," + GetName(() => score.price_line3) +
                     "";
             }
 
@@ -350,6 +353,7 @@ namespace ConsoleApplication1
                         score.price_line = GetPriceLine(records);
                         score.mapping_candle = GetMappingCandle(records);
                         score.price_line2 = GetPriceLine2(records);
+                        score.price_line3 = GetPriceLine3(records);
 
                         score = Get_minus_min(records, score);
 
@@ -410,6 +414,71 @@ namespace ConsoleApplication1
             }
 
             return CutComma(key);
+        }
+
+        private struct Box
+        {
+            public double volume;
+            public Range range;
+        }
+
+        private struct Range
+        {
+            public double up;
+            public double down;
+        }
+
+        private static double GetPriceLine3(List<Record> records)
+        {
+            Box[] boxes = new Box[10000];
+
+            double lowprice = GetLowPrice(records);
+            double highprice = GetHighPrice(records);
+            double diff = (highprice - lowprice) / boxes.Length;
+
+            for (int i = 0; i < boxes.Length; i++)
+            {
+                boxes[i] = new Box();
+                boxes[i].volume = 0.0;
+                boxes[i].range = new Range();
+
+                boxes[i].range.down = lowprice + diff * i;
+                boxes[i].range.up = lowprice + diff * (i + 1);
+            }
+
+            Dictionary<string, double> hashtable = new Dictionary<string, double>();
+
+            foreach (Record record in records)
+            {
+                double price = (double.Parse(record.高値) + double.Parse(record.安値) + double.Parse(record.始値) + double.Parse(record.終値)) / 4;
+                bool check = false;
+
+                for (int i = 0; i < boxes.Length; i++)
+                {
+                    if (boxes[i].range.down <= price && price <= boxes[i].range.up)
+                    {
+                        boxes[i].volume += double.Parse(record.出来高);
+                        check = true;
+                    }
+                }
+
+                if (check == false)
+                {
+                    throw new Exception();
+                }
+            }
+
+            double max = double.MinValue;
+
+            for (int i = 0; i < boxes.Length; i++)
+            {
+                if (max < boxes[i].volume)
+                {
+                    max = (boxes[i].range.up + boxes[i].range.down) / 2;
+                }
+            }
+
+            return max;
         }
 
         private static string CutComma(string str)
