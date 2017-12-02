@@ -70,6 +70,7 @@ namespace ConsoleApplication1
             public ushort one_per_win;
             public string price_line;
             public double mapping_candle;
+            public string price_line2;
 
             public override string ToString()
             {
@@ -101,6 +102,7 @@ namespace ConsoleApplication1
                     "," + one_per_win +
                     "," + price_line +
                     "," + mapping_candle +
+                    "," + price_line2 +
                     "";
             }
 
@@ -136,6 +138,7 @@ namespace ConsoleApplication1
                     "," + GetName(() => score.one_per_win) +
                     "," + GetName(() => score.price_line) +
                     "," + GetName(() => score.mapping_candle) +
+                    "," + GetName(() => score.price_line2) +
                     "";
             }
 
@@ -346,6 +349,7 @@ namespace ConsoleApplication1
                         score.one_per_win = GetOnePerWin(records);
                         score.price_line = GetPriceLine(records);
                         score.mapping_candle = GetMappingCandle(records);
+                        score.price_line2 = GetPriceLine2(records);
 
                         score = Get_minus_min(records, score);
 
@@ -363,6 +367,49 @@ namespace ConsoleApplication1
                 tw.WriteLine(score.ToString());
             }
             tw.Flush();
+        }
+
+        private static string GetPriceLine2(List<Record> records)
+        {
+            Dictionary<string, double> hashtable = new Dictionary<string, double>();
+
+            foreach (Record record in records)
+            {
+                double price = (double.Parse(record.高値) + double.Parse(record.安値) + double.Parse(record.始値) + double.Parse(record.終値)) / 4;
+                string[] price_str = price.ToString().Split(new char[] { '.' });
+
+                if (price_str.Length == 1)
+                {
+                    price_str[0] += ".0";
+                }
+                else
+                {
+                    price_str[0] += "." + price_str[1].Substring(0, 1);
+                }
+
+                try
+                {
+                    hashtable[price_str[0]] += double.Parse(record.出来高);
+                }
+                catch (KeyNotFoundException)
+                {
+                    hashtable[price_str[0]] = double.Parse(record.出来高);
+                }
+            }
+
+            double max = double.MinValue;
+            string key = "";
+
+            foreach (KeyValuePair<string, double> de in hashtable)
+            {
+                if (max < de.Value)
+                {
+                    max = de.Value;
+                    key = de.Key;
+                }
+            }
+
+            return CutComma(key);
         }
 
         private static string CutComma(string str)
