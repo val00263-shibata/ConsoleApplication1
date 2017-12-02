@@ -430,7 +430,7 @@ namespace ConsoleApplication1
 
         private static double GetPriceLine3(List<Record> records)
         {
-            Box[] boxes = new Box[10000];
+            Box[] boxes = new Box[100];
 
             double lowprice = GetLowPrice(records);
             double highprice = GetHighPrice(records);
