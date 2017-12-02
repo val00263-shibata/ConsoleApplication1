@@ -430,7 +430,7 @@ namespace ConsoleApplication1
 
         private static double GetPriceLine3(List<Record> records)
         {
-            Box[] boxes = new Box[100];
+            Box[] boxes = new Box[1000];
 
             double lowprice = GetLowPrice(records);
             double highprice = GetHighPrice(records);
@@ -459,6 +459,7 @@ namespace ConsoleApplication1
                     {
                         boxes[i].volume += double.Parse(record.出来高);
                         check = true;
+                        break;
                     }
                 }
 
