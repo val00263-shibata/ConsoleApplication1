@@ -393,11 +393,11 @@ namespace ConsoleApplication1
 
                 try
                 {
-                    hashtable[price_str[0]] += double.Parse(record.出来高);
+                    hashtable[price_str[0]] += double.Parse(record.出来高) * price;
                 }
                 catch (KeyNotFoundException)
                 {
-                    hashtable[price_str[0]] = double.Parse(record.出来高);
+                    hashtable[price_str[0]] = double.Parse(record.出来高) * price;
                 }
             }
 
@@ -457,7 +457,7 @@ namespace ConsoleApplication1
                 {
                     if (boxes[i].range.down <= price && price <= boxes[i].range.up)
                     {
-                        boxes[i].volume += double.Parse(record.出来高);
+                        boxes[i].volume += double.Parse(record.出来高) * price;
                         check = true;
                         break;
                     }
@@ -469,17 +469,19 @@ namespace ConsoleApplication1
                 }
             }
 
-            double max = double.MinValue;
+            double cmp = double.MinValue;
+            int index = -1;
 
             for (int i = 0; i < boxes.Length; i++)
             {
-                if (max < boxes[i].volume)
+                if (cmp < boxes[i].volume)
                 {
-                    max = (boxes[i].range.up + boxes[i].range.down) / 2;
+                    cmp = boxes[i].volume;
+                    index = i;
                 }
             }
 
-            return max;
+            return (boxes[index].range.up + boxes[index].range.down) / 2;
         }
 
         private static string CutComma(string str)
