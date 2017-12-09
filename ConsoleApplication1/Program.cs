@@ -72,6 +72,7 @@ namespace ConsoleApplication1
             public double mapping_candle;
             public string price_line2;
             public double price_line3;
+            public string 貸借倍率;
 
             public override string ToString()
             {
@@ -105,6 +106,7 @@ namespace ConsoleApplication1
                     "," + mapping_candle +
                     "," + price_line2 +
                     "," + price_line3 +
+                    "," + 貸借倍率 +
                     "";
             }
 
@@ -142,6 +144,7 @@ namespace ConsoleApplication1
                     "," + GetName(() => score.mapping_candle) +
                     "," + GetName(() => score.price_line2) +
                     "," + GetName(() => score.price_line3) +
+                    "," + GetName(() => score.貸借倍率) +
                     "";
             }
 
@@ -354,6 +357,7 @@ namespace ConsoleApplication1
                         score.mapping_candle = GetMappingCandle(records);
                         score.price_line2 = GetPriceLine2(records);
                         score.price_line3 = GetPriceLine3(records);
+                        score.貸借倍率 = CutComma(records[records.Count - 1].貸借倍率);
 
                         score = Get_minus_min(records, score);
 
