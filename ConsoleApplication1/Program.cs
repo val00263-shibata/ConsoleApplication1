@@ -73,6 +73,7 @@ namespace ConsoleApplication1
             public string price_line2;
             public double price_line3;
             public string 貸借倍率;
+            public double 前週比;
 
             public override string ToString()
             {
@@ -107,6 +108,7 @@ namespace ConsoleApplication1
                     "," + price_line2 +
                     "," + price_line3 +
                     "," + 貸借倍率 +
+                    "," + 前週比 +
                     "";
             }
 
@@ -145,6 +147,7 @@ namespace ConsoleApplication1
                     "," + GetName(() => score.price_line2) +
                     "," + GetName(() => score.price_line3) +
                     "," + GetName(() => score.貸借倍率) +
+                    "," + GetName(() => score.前週比) +
                     "";
             }
 
@@ -358,6 +361,7 @@ namespace ConsoleApplication1
                         score.price_line2 = GetPriceLine2(records);
                         score.price_line3 = GetPriceLine3(records);
                         score.貸借倍率 = CutComma(records[records.Count - 1].貸借倍率);
+                        score.前週比 = (double.Parse(records[records.Count - 1].終値) / double.Parse(records[records.Count - 1 - 5].終値) - 1) * 100;
 
                         score = Get_minus_min(records, score);
 
